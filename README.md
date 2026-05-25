@@ -1,0 +1,41 @@
+# ai-recipes
+
+A pattern library for AI-assisted development commands.
+
+Each recipe describes the **idea** of a command — the problem it solves,
+the algorithm, the tradeoffs — without committing to a specific stack
+or tool. You hand the recipe to your AI assistant (Claude Code, Cursor,
+Cline, Continue, or any other), and it generates a command tailored to
+**your** ticket tracker, **your** CI, **your** conventions.
+
+## Why concepts, not implementations?
+
+Implementations rot. Tools rename. Internal URLs leak into commits.
+
+A concept is a durable pattern. It teaches the *why* and lets the AI
+handle the *how* for your specific environment. The same recipe works
+whether you use Jira or Linear, Jenkins or GitHub Actions, npm or uv.
+
+## How to use a recipe
+
+1. Browse [commands/](commands/) and pick one that solves a problem you have.
+2. Paste it into your AI assistant with a prompt like:
+
+   > Here's a recipe for a slash command. Build me a version for my stack:
+   > ticket tracker = Linear, CI = GitHub Actions, package manager = pnpm.
+   > Format it for my AI tool (Claude Code slash command, Cursor custom
+   > command, Cline mode, etc.).
+
+3. The AI generates a command tailored to your setup. Tweak as needed.
+
+## Recipes
+
+### Commands
+
+- [**start-work**](commands/start-work.md) — turn a ticket reference into
+  a ready-to-code workspace: branch in an isolated worktree, dependencies
+  installed, env files copied.
+
+## License
+
+[MIT](LICENSE)
