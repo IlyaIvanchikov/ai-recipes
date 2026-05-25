@@ -38,6 +38,8 @@ whether you use Jira or Linear, Jenkins or GitHub Actions, npm or uv.
 - [**finish-work**](commands/finish-work.md) — safely tear down a worktree
   when work is done: safety checks for uncommitted changes and unpushed
   commits, then remove the worktree, optionally delete the local branch.
+- [**qa-handoff**](commands/qa-handoff.md) — post a fix summary and QA
+  test plan to the ticket so QA picks it up cleanly.
 
 ## License
 
