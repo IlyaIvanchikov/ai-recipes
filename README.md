@@ -40,6 +40,20 @@ whether you use Jira or Linear, Jenkins or GitHub Actions, npm or uv.
   commits, then remove the worktree, optionally delete the local branch.
 - [**qa-handoff**](commands/qa-handoff.md) — post a fix summary and QA
   test plan to the ticket so QA picks it up cleanly.
+- [**review**](commands/review.md) — review the current branch's diff
+  against a fixed checklist (bugs, security, conventions), then apply the
+  fixes you select.
+- [**error-triage**](commands/error-triage.md) — turn an error-tracker
+  issue into a structured root-cause analysis with stacktrace, impact, and
+  a suggested fix.
+- [**ci-debug**](commands/ci-debug.md) — triage a failing CI build: fetch
+  the log, classify code-vs-infra, suggest a fix — read-only, log kept out
+  of context.
+- [**deliver**](commands/deliver.md) — ship the current branch: gate on
+  lint and type-check, commit with the ticket key, push, and open a PR.
+- [**ticket-create**](commands/ticket-create.md) — file a tracker ticket
+  from the conversation, deriving the summary and body from context without
+  fabricating details.
 
 ## License
 
