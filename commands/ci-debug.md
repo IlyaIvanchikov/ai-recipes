@@ -19,8 +19,9 @@ your AI assistant's context window.
 
 2. **Check status before fetching the log.** Hit the CI server's JSON API
    once. If the build is green or still running, say so and stop — there's
-   nothing to triage. Only continue on a real failure
-   (`FAILURE` / `ABORTED` / `UNSTABLE`). Classify API errors too: 401/403 →
+   nothing to triage. Only continue on a real failure — your CI's
+   failed/aborted/unstable states (e.g. Jenkins `FAILURE`/`ABORTED`/`UNSTABLE`,
+   GitHub Actions `failure`/`cancelled`). Classify API errors too: 401/403 →
    refresh credentials; 404 → wrong/deleted build; network → check VPN/DNS.
 
 3. **Ask for the local repo path** the build corresponds to, so the

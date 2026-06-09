@@ -21,7 +21,8 @@ the root cause, before you decide whether to fix, dig deeper, or file a ticket.
 
 2. **Fetch issue details** via your error tracker's CLI/API: title,
    culprit, level, first/last seen, event & user counts, status, and the
-   ID of the most recent event.
+   ID of the most recent event. If the issue has no events yet, there's
+   nothing to analyze — report the summary and stop.
 
 3. **Fetch the latest event's full payload** (usually JSON). Extract:
    - **Exception** — the full stacktrace with source context; flag which

@@ -25,7 +25,8 @@ the test-plan section of the PR body — and without ever committing a `.env`.
    fails, show the errors and **stop**.
 
 4. **Review what's about to be committed.** Run `git status` and
-   `git diff --stat`. Explicitly exclude anything secret-shaped — `.env`,
+   `git diff --stat`. If there's nothing to commit and nothing unpushed,
+   stop — there's nothing to deliver. Explicitly exclude anything secret-shaped — `.env`,
    `credentials.json`, key files. Never stage them, even if tracked by accident.
 
 5. **Commit.** Stage the relevant files. Use the user's message if given,
@@ -33,9 +34,13 @@ the test-plan section of the PR body — and without ever committing a `.env`.
    ticket key** so the commit is traceable. Add whatever co-author/footer
    trailer your team uses.
 
-6. **Push** the branch to the remote with upstream tracking.
+6. **Push** the branch to the remote with upstream tracking. If the push is
+   rejected because the remote moved ahead, **stop** and tell the user to
+   rebase or pull first — never force-push over someone else's work.
 
-7. **Open the PR** against the base branch, with a body containing:
+7. **Open the PR** against the base branch. If a PR for this branch already
+   exists, update it (or just return its URL) instead of erroring. Give it a
+   body containing:
    - `## Summary` — 1–3 bullets on what changed
    - `## Test plan` — a checklist (lint, type-check, build, manual steps)
    - A link back to the ticket

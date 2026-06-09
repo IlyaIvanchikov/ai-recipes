@@ -28,7 +28,9 @@ a type, and the command structures the rest.
    - **Without a hint** — derive everything from the conversation: scan for
      the most recent problem discussed, and identify the failing system,
      the symptom, the root cause (if known), the affected builds/PRs/files,
-     and any proposed fix.
+     and any proposed fix. If the conversation has nothing to derive from and
+     no hint was given, stop and ask for at least a one-line description —
+     never invent a ticket.
    - Generate a summary that names the affected system *and* the symptom,
      so the title is searchable later.
 

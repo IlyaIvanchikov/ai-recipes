@@ -16,11 +16,14 @@ and can apply the ones you approve.
 
 1. **Detect the base.** Use the argument if given; otherwise the branch's
    upstream; otherwise fall back to your repo's default integration branch.
-   Diff `{base}..HEAD`. If there are no changes, say so and stop.
+   If the base ref doesn't exist, say so and stop. Diff `{base}..HEAD`. If
+   there are no changes, say so and stop.
 
 2. **Gather the diff.** Run `git diff --stat {base}..HEAD` for the summary
    and the full `git diff {base}..HEAD` for the review. Tell the user how
-   many files changed.
+   many files changed. Skip binary and generated files (lockfiles, build
+   output) — they're noise. If the diff is very large, review it in batches
+   so it doesn't blow the context window, and say you're doing so.
 
 3. **Load project rules.** Look for a conventions file in the repo root
    (e.g. `CLAUDE.md`, `AGENTS.md`, a `CONTRIBUTING.md`). If present, read
