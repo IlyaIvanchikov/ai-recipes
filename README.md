@@ -54,6 +54,9 @@ whether you use Jira or Linear, Jenkins or GitHub Actions, npm or uv.
 - [**ticket-create**](commands/ticket-create.md) — file a tracker ticket
   from the conversation, deriving the summary and body from context without
   fabricating details.
+- [**distill**](commands/distill.md) — run a quality-only cleanup pass: four
+  parallel agents flag reuse, simplification, efficiency, and altitude issues,
+  then apply the safe fixes (no bug-hunting — that's a separate review).
 
 ## License
 
