@@ -28,6 +28,24 @@ whether you use Jira or Linear, Jenkins or GitHub Actions, npm or uv.
 
 3. The AI generates a command tailored to your setup. Tweak as needed.
 
+## Some recipes ship my real command
+
+A few recipes are tool-agnostic enough that they also bundle the actual slash
+command I run day to day — pasted verbatim at the bottom of the recipe under a
+**Ready-to-use command** section. Copy it and go; no adaptation needed for the
+common case.
+
+**Example:** [**distill**](commands/distill.md) — the recipe explains the idea
+(a quality-only cleanup pass over your diff), and right below it ships my real
+Claude Code command so you can run it as-is.
+
+These recipes are marked 🧩 in the list below. Heads-up: the bundled command is
+in Claude Code format (`$ARGUMENTS`, a Task-tool parallel fan-out). On Cursor /
+Cline / Continue, either run the recipe through your assistant as usual, or use
+the recipe's single-agent variation. Tool-coupled recipes (anything that talks
+to a ticket tracker, CI, or error tracker) stay concept-only on purpose — that's
+exactly where a hardcoded command rots on someone else's machine.
+
 ## Recipes
 
 ### Commands
@@ -54,9 +72,48 @@ whether you use Jira or Linear, Jenkins or GitHub Actions, npm or uv.
 - [**ticket-create**](commands/ticket-create.md) — file a tracker ticket
   from the conversation, deriving the summary and body from context without
   fabricating details.
-- [**distill**](commands/distill.md) — run a quality-only cleanup pass: four
+- 🧩 [**distill**](commands/distill.md) — run a quality-only cleanup pass: four
   parallel agents flag reuse, simplification, efficiency, and altitude issues,
   then apply the safe fixes (no bug-hunting — that's a separate review).
+  *Ships my real Claude Code command.*
+
+## Suggested pipeline
+
+The recipes are built to chain. A typical task flows top to bottom; the dashed
+paths are the "something went wrong" branches that loop you back in.
+
+```mermaid
+flowchart TD
+    A([New task or bug]) --> B[ticket-create]
+    B --> C[start-work]
+    C --> D[write the change]
+    D --> E[distill]
+    E --> F[review]
+    F --> G[deliver]
+    G --> H{CI green?}
+    H -- no --> I[ci-debug]
+    I --> D
+    H -- yes --> J[qa-handoff]
+    J --> K[finish-work]
+    P([Prod error]) -.-> Q[error-triage]
+    Q -.-> B
+```
+
+1. **ticket-create** — file the ticket from the conversation (skip if it already exists).
+2. **start-work** — turn the ticket into an isolated workspace: branch in a worktree, deps installed, env copied.
+3. *Write the change.*
+4. **distill** — quality-only cleanup pass on the diff (reuse, simplification, efficiency, altitude).
+5. **review** — AI review for bugs, security, and repo conventions; apply the fixes you accept.
+6. **deliver** — lint + type-check gate, ticket-prefixed commit, push, open the PR.
+7. **ci-debug** — if the build goes red, triage code-vs-infra and loop back to the fix.
+8. **qa-handoff** — once green, post a fix summary and QA plan onto the ticket.
+9. **finish-work** — after merge, tear down the worktree safely.
+
+**error-triage** sits off the happy path: a production error becomes a root-cause
+analysis that feeds a fresh ticket, re-entering the pipeline at the top.
+
+> Recipe names are generic here. In your own setup they may be prefixed or
+> renamed (e.g. a Claude Code build might expose `start-work` as `/eva-start-work`).
 
 ## License
 
