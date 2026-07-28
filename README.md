@@ -85,6 +85,9 @@ exactly where a hardcoded command rots on someone else's machine.
 - 🧩 [**flow**](commands/flow.md) — narrate a feature end-to-end as one linear
   story (page → endpoint → jobs → data → what the user sees), not a line-by-line
   code trace. *Ships my real Claude Code command.*
+- 🧩 [**explain-diff**](commands/explain-diff.md) — explain the current diff for
+  review: per-file what + why, a summary table, a Definition of Done, and one
+  good-vs-bad example — read-only. *Ships my real Claude Code command.*
 
 ## Suggested pipeline
 
