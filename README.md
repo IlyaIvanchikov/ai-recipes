@@ -76,6 +76,15 @@ exactly where a hardcoded command rots on someone else's machine.
   parallel agents flag reuse, simplification, efficiency, and altitude issues,
   then apply the safe fixes (no bug-hunting — that's a separate review).
   *Ships my real Claude Code command.*
+- 🧩 [**tldr**](commands/tldr.md) — re-explain the last answer as a skimmable
+  digest: a one-line TL;DR, a compact table or a few bullets, an optional
+  decision line. *Ships my real Claude Code command.*
+- 🧩 [**eli5**](commands/eli5.md) — re-explain the last thing in the simplest
+  terms — one everyday analogy, no jargon — so a non-engineer gets it on the
+  first read. *Ships my real Claude Code command.*
+- 🧩 [**flow**](commands/flow.md) — narrate a feature end-to-end as one linear
+  story (page → endpoint → jobs → data → what the user sees), not a line-by-line
+  code trace. *Ships my real Claude Code command.*
 
 ## Suggested pipeline
 
