@@ -12,11 +12,12 @@ A slash command that explains your current git changes **for review** — a shor
 ## How it works
 
 1. **Collect the changeset (read-only).** Status + staged/unstaged/untracked; or the diff vs a ref; or scoped to a path. Never `git add` / `commit` / edit — this command only reads.
-2. **Anchor the intent.** Ground the "why" in the branch name, recent commit messages, and any design/plan/spec doc or `CLAUDE.md` in the repo — so the explanation and the Definition of Done are judged against your own conventions, not invented. No context → infer from the diff.
-3. **Explain.**
+2. **Put the files in review order.** Not the order git lists them (by path), but the order a reviewer should read them: the **cause** (types, schemas, config, the renamed symbol) → the **implementation** → the **wiring** (callers, routes, UI) → **tests** → **docs**. Inside a layer, a file comes after the files it imports. The order is printed up front as a numbered list, so you can see the path and object to it.
+3. **Anchor the intent.** Ground the "why" in the branch name, recent commit messages, and any design/plan/spec doc or `CLAUDE.md` in the repo — so the explanation and the Definition of Done are judged against your own conventions, not invented. No context → infer from the diff.
+4. **Explain.**
    - **All-at-once (default):** per-file **What + Why** (What becomes a short bullet list when a file bundles 2+ distinct sub-changes) → a **summary table** (`File | What changed | Why`) → a **Definition of Done** (testable criteria; `[x]` only what was actually verified this run, `[ ]` for the rest) → one **good-vs-bad** example of the key pattern → close.
    - **Step mode (`step`):** list the files in review order with a total `N`, then explain **one file per turn** led by a `k/N` progress counter; "go" for the next, "skip" to jump straight to the final wrap-up. The whole-changeset table + Definition of Done come after the last file.
-4. **Flags & scope.** Each flag has a one-letter short form, and short forms cluster (`-tdc`):
+5. **Flags & scope.** Each flag has a one-letter short form, and short forms cluster (`-tdc`):
    - `--skip-tests` / `-t` drops test files from the whole changeset before explaining (they don't count toward `N` or the table).
    - `--skip-docs` / `-d` drops documentation files (README, changelog, `docs/`, `*.md`…) the same way.
    - `--core` / `-c` explains only the files a reviewer has to think about, and **folds** the rest (mechanical fallout of a rename or lint rule, generated files, format-only and prose-only changes) into one group row per cause, so nothing disappears silently.
@@ -34,6 +35,7 @@ A slash command that explains your current git changes **for review** — a shor
 - **A Definition of Done that marks `[x]` only what was truly verified this run** refuses to fake confidence — the unchecked boxes *are* the reviewer's to-do list.
 - **One good-vs-bad example** names the pattern the change establishes or guards against, so the reviewer walks away with the rule, not just this one instance.
 - **Read-only by contract** keeps *explain* and *commit* separate — understanding a diff should never mutate it.
+- **Review order turns a diff into a story** — read the cause first and every later file makes sense on arrival; read alphabetically and you meet a test before the code it proves, or a caller before the function it calls.
 - **Step mode paces a big review** — one file per turn beats a wall of twelve explanations nobody scrolls through.
 - **Skip drops, `--core` folds** — tests and docs are known categories you can review elsewhere, so skipping removes them; a folded file is a judgment call, so it stays visible in a group row where the reviewer can pull a misfiled file back out.
 
@@ -103,19 +105,29 @@ Rules for the sort:
 - `--core` and the `--skip-*` flags are independent: the skips remove their files first, then `--core` sorts what remains. Without `--skip-tests`, a test file that only got a mechanical update is folded and a test that asserts new behavior is core; without `--skip-docs`, a prose-only doc change is folded under the *prose-only* kind — so `--skip-docs` drops what `--core` would otherwise fold into a visible group row.
 - If nothing folds, say so in one line and continue exactly as without the flag.
 
+**(Both modes) Review order:** after the changeset is final (skips applied, `--core` sorted), put the files into the order a reviewer should read them, so the explanation reads as a story from cause to effect rather than in the order git lists them. Both modes walk the files, and build the summary table, in this order:
+
+1. **The cause** — what everything else depends on or was changed for: types, interfaces, schemas, constants, config, migrations, the lint rule or renamed symbol behind a sweep.
+2. **The implementation** — the code that carries the new behavior.
+3. **The wiring** — callers, routes, handlers, registrations, UI that consumes the implementation.
+4. **Tests** — after the code they prove, so the reader already knows what is being asserted.
+5. **Docs** — last; they describe what came before.
+
+Inside one layer, follow the dependency: a file comes after the files it imports from the changeset. When a file fits two layers, put it where the reviewer first needs it. State the order once, as a numbered file list, before the first explanation, so the reviewer can see the path and object to it.
+
 **(Both modes) Python technique notes:** if the repo is a Python project and a changed file uses non-standard or non-obvious Python — advanced idioms, decorators, metaclasses/metaprogramming, comprehension/generator tricks, async/await, context managers, typing constructs (e.g. `Protocol`, `overload`, `assert_never`), dataclasses/`__slots__` — add a one-line **Note** at the **end** of that file's explanation (after What/Why and any good/bad snippet) saying what the technique does and why, in plain terms for a reader coming from a Node.js/JS background (compare to the JS equivalent where it helps). Skip for ordinary, idiomatic code.
 
 ### All-at-once mode (default)
 
-3. **Per-file explanation** — for EACH changed file (with `--core`: each **core** file; folded files get no per-file entry): **What** + **Why**. **Why** stays 1 line (intent/rationale tied to the rule/plan/convention it serves). **What** is 1 line if the change is a single thing; if it bundles 2+ distinct sub-changes (new param, new branch, multiple call sites, etc.), switch **What** to a short bullet list — one bullet per sub-change, each bullet a fragment not a sentence, no nested bullets. Short and clear either way — no walls of text, no re-pasting the whole diff.
-4. **Summary table:** `| File | What changed | Why |`. With `--core`: one row per core file, then one **group row** per folded group (shape from the classification rules) — the table still accounts for every file in the changeset.
+3. **Per-file explanation** — list the files in review order (see "Review order" above), then for EACH changed file, in that order (with `--core`: each **core** file; folded files get no per-file entry): **What** + **Why**. **Why** stays 1 line (intent/rationale tied to the rule/plan/convention it serves). **What** is 1 line if the change is a single thing; if it bundles 2+ distinct sub-changes (new param, new branch, multiple call sites, etc.), switch **What** to a short bullet list — one bullet per sub-change, each bullet a fragment not a sentence, no nested bullets. Short and clear either way — no walls of text, no re-pasting the whole diff.
+4. **Summary table:** `| File | What changed | Why |`, rows in review order. With `--core`: one row per core file, then one **group row** per folded group (shape from the classification rules) — the table still accounts for every file in the changeset.
 5. **Definition of Done** — checkbox list of *testable* done-criteria (tests green, type-checker/linter clean, the specific behavior holds, docs updated, no secret/PII, no magic values, follows conventions). Tie to the plan/spec where one exists. `[x]` only what you actually verified this run; `[ ]` for the rest. If `--skip-tests` was used, leave test-related criteria `[ ]` and note they weren't reviewed; same for doc-related criteria ("docs updated") under `--skip-docs`. With `--core`, the DoD still spans the whole changeset — the folded files included (e.g. "lint clean across the N rewritten files").
 6. **Good vs bad example** — the single key pattern the change establishes or guards against, side by side (2–8 lines each): ✅ Good (what the change does) / ❌ Bad (the tempting wrong way it avoids).
 7. **Close:** note it was read-only; committing is a separate explicit step. If `--skip-tests` and/or `--skip-docs` was used, also note how many files each one excluded, counted separately (e.g. `--skip-tests: 6 test files excluded · --skip-docs: 3 doc files excluded`). If `--core` was used, also note `--core: N files folded into K groups`.
 
 ### Step mode (`step`)
 
-3. **List the files** to walk, in a sensible review order (e.g. constants/types → implementation → wiring → tests, or simply the changeset order). With `--core`, the walk list holds the **core** files only and `N` is their count; state the folded groups in the same breath ("plus 37 files folded into 2 groups — shown in the final table"). State the total `N`: "N files — I'll explain one at a time; say **go** for the next, or **skip** to jump straight to the final summary."
+3. **List the files** to walk, in review order (see "Review order" above). With `--core`, the walk list holds the **core** files only and `N` is their count; state the folded groups in the same breath ("plus 37 files folded into 2 groups — shown in the final table"). State the total `N`: "N files — I'll explain one at a time; say **go** for the next, or **skip** to jump straight to the final summary."
 4. **Explain the FIRST file only.** Lead with the progress counter **`1/N — <path>`**, then: its **What** + **Why** (same shape as all-at-once — What as a bullet list when it bundles 2+ sub-changes), plus — if it helps — a tiny good/bad snippet specific to that file. No per-file Definition of Done. Then **STOP** and wait.
 5. **On the user's "go"** (or "next"): explain the **next** file the same way — lead with the progress counter **`k/N — <path>`** (e.g. `4/11`, `5/11`), then What + Why and an optional snippet — then stop. If the user asks a question instead of "go", answer it, then stay on the current file until they say go.
    - **On the user's "skip"** (or "skip rest", "finish", "wrap up"): end the per-file walk immediately. "skip" always means skip the *rest of the walk*, never just the current file. Do not explain the remaining files one by one — go straight to the final wrap-up (step 6), where the summary table covers **all** files, walked and unwalked alike.
@@ -126,6 +138,7 @@ Rules for the sort:
 - Read-only by contract: inspect + explain only. No staging, committing, or editing.
 - Optimize for review speed: short per-file lines, one summary table, one good/bad pair. DoD differs by mode — all-at-once: a single changeset DoD; step mode: no per-file DoD, only a final whole-changeset DoD after the last file.
 - Step mode spans multiple turns — keep state in the conversation: remember which files are done and resume at the next unreviewed one on each "go".
-- If the changeset is large (all-at-once), group by area and still give the table + DoD; keep per-file lines terse.
+- If the changeset is large (all-at-once), group by area and still give the table + DoD; keep per-file lines terse. Inside each area, keep the review order.
+- Review order is a rule, not a preference: the order git lists files in is sorted by path, which can put a test before the code it proves and a caller before the function it calls.
 - The `--skip-*` flags drop, `--core` folds — on purpose. Tests and docs are known categories you can choose to review elsewhere; a folded file is a judgment call the reviewer must be able to check, so it stays visible as part of a group row. Keep the two categories on separate flags: a review that skips tests usually still wants the README change, and a docs-only review is exactly the case `--skip-tests` alone serves.
 ````
