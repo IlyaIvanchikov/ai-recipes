@@ -127,6 +127,11 @@ analysis that feeds a fresh ticket, re-entering the pipeline at the top.
 > Recipe names are generic here. In your own setup they may be prefixed or
 > renamed (e.g. a Claude Code build might expose `start-work` as `/eva-start-work`).
 
+## Stay in the loop
+
+New recipes and the stories behind them land first on my Telegram channel
+(in Russian): [@ivanchikovitclub](https://t.me/ivanchikovitclub).
+
 ## License
 
 [MIT](LICENSE)
